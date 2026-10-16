@@ -1,0 +1,110 @@
+{
+  "info": {
+    "name": "Student API Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GET All Students",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3000/api/students"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Response has success field\", function () { var j = pm.response.json(); pm.expect(j.success).to.be.true; });",
+              "pm.test(\"Data is an array\", function () { var j = pm.response.json(); pm.expect(j.data).to.be.an('array'); });",
+              "pm.test(\"Has at least 3 students\", function () { var j = pm.response.json(); pm.expect(j.data.length).to.be.at.least(3); });",
+              "pm.test(\"Response time < 200ms\", function () { pm.expect(pm.response.responseTime).to.be.below(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET Student by ID",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3000/api/students/SV001"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", () => { pm.response.to.have.status(200); });",
+              "pm.test(\"Returns correct student\", () => { var j = pm.response.json(); pm.expect(j.data.name).to.equal(\"Nguyen Van A\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST Create Student",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"id\": \"SV004\",\n    \"name\": \"Pham Thi D\",\n    \"age\": 22,\n    \"grade\": \"K19\"\n}"
+        },
+        "url": "http://localhost:3000/api/students"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", () => { pm.response.to.have.status(201); });",
+              "pm.test(\"Returns created student\", () => { var j = pm.response.json(); pm.expect(j.data.name).to.equal(\"Pham Thi D\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET Student Not Found (404)",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3000/api/students/SV999"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 404\", () => { pm.response.to.have.status(404); });",
+              "pm.test(\"Returns error message\", () => { var j = pm.response.json(); pm.expect(j.success).to.be.false; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST Missing Fields (Validation)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"Test\"\n}"
+        },
+        "url": "http://localhost:3000/api/students"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 400\", () => { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
